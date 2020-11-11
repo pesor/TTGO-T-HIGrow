@@ -1,6 +1,7 @@
 # LilyGO TTGO T-HiGrow
 ## TTGO T-HIGrow MQTT autodiscover interface for Homeassistant
 
+## [Battery StateCard](https://github.com/maxwroc/battery-state-card)
 ![https://github.com/pesor/TIGO-T-HIGrow/blob/master/images/T-Higrow.jpg](G:%5CTIGO-T-HIGrow%5Cimages%5CT-Higrow.jpg)
 
 <a href="https://github.com/pesor/LILYGO-TTGO-T-Higrow/releases"><img src="https://img.shields.io/github/v/release/pesor/LILYGO-TTGO-T-Higrow?style=plastic"/></a> <a href="https://github.com/pesor/LILYGO-TTGO-T-Higrow/blob/master/LICENSE"><img src="https://img.shields.io/github/license/pesor/LILYGO-TTGO-T-Higrow?style=plastic"/></a>  <a href="https://github.com/pesor/LILYGO-TTGO-T-Higrow/stargazers"><img src="https://img.shields.io/github/stars/pesor/LILYGO-TTGO-T-Higrow?style=plastic"/></a>  <a href="https://github.com/pesor/LILYGO-TTGO-T-Higrow/releases"><img src="https://img.shields.io/github/downloads/pesor/LILYGO-TTGO-T-Higrow/total?style=plastic"/></a>
