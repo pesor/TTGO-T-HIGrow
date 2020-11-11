@@ -131,7 +131,7 @@ I did have some problems in understand the explanation on the Github belonging t
 
 
 
-![](https://github.com/pesor/LILYGO-TTGO-T-Higrow/blob/master/images/battery-state-card.JPG)
+![](https://github.com/pesor/TIGO-T-HIGrow/blob/master/images/battery-state-card.JPG)
 
 
 
