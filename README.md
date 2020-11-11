@@ -125,7 +125,7 @@ As I have many TTGO-T-HIGROW modules, it is most confortable to have all these m
 
 It will look like this:
 
-​												![](https://github.com/pesor/LILYGO-TTGO-T-Higrow/blob/master/images/battery-state-card-view.JPG)
+​												![](https://github.com/pesor/TIGO-T-HIGrow/blob/master/images/battery-state-card-view.JPG)
 
 I did have some problems in understand the explanation on the Github belonging to the card, so I have included an example on how to get it to work here:
 
