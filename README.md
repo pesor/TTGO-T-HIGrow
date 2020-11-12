@@ -17,7 +17,7 @@ What things you need to install the software and how to install them
 
 2. Windows 10, with installed Arduino EDI (my version 1.8.12)
 
-3. USB Cable with USB-C to attatch to the LilyGo
+3. USB Cable with USB-C to attatch to the TTGO-T-HIGrow module
 
 4. MQTT server (I am running on a Synology NAS in docker)
    If you have a Synology NAS, I can recommend to follow [BeardedTinker](https://www.youtube.com/channel/UCuqokNoK8ZFNQdXxvlE129g) on YouTube, he makes a very intuitive explanation how to setup the whole environment on Synology.   
@@ -30,7 +30,9 @@ Below a step by step that tell you how to get a development/production environme
 
 He has performed a tremendous task in doing this.
 
-First video is how to setup the whole environment: https://www.youtube.com/watch?v=7w6_ZkLDxko&t=231s
+First video is how to setup the whole environment: https://www.youtube.com/watch?v=7w6_ZkLDxko&t=231s, this video is for the version 1.x.x, but the first part is good, as it shows you how to setup the Arduino EDI, which is needed for the VSCode/PlatformIO EDI.
+
+For setting up the VSCode and the PlatformIO, please Google it, there are som good YouTube videos showing how to setup VSCode and PlatformIO on Windows 10
 
 I highly recommend that your see and follow these two videos, as then you only will have success in setting this up.
 
@@ -38,19 +40,19 @@ If you have many sensors and choose to use the autodiscover function, then in th
 
 After seeing the videos, remenber to give a "Thumbs Up" to support BeardedThinker in his work.
 
-### The INO Part - The Arduino Sketch
+### The main.cpp Part
 
-The main program here is the:
+The main program is the:
 
-​			**TTGO-HiGrow-mqtt-master-mac-id-autodisc.ino**
+​			**main.cpp**
 
-You just use this .ino as a master, and upload it to every  *LILYGO TTGO T-Higrow* module you have.
+You just use this .cpp as a master, and upload it to every  *LILYGO TTGO T-HIGrow module you have.
 
 Few things of importants:
 
- 1. First identify the ***// Start user defined data*** in the sketch
+ 1. First locate the file **user-variables.h** in the include folder in your download. This file contains all user modifyable variables for the project.
 
- 2. If you have problems in seeing problems where the module is situated, you can activate the logging on the board it self, by setting the variable **logging = true**. (Default is false)
+ 2. If you have problems in seeing problems where the module is placed and running, you can activate the logging on the board it self, by setting the variable **logging = true**. (Default is false)
 
  3. Then you have to tell which DHT sensor you have on your module, by uncomment the ***#define DHT_TYPE variable*** which matches your sensor, and comment the others out.
 
@@ -58,7 +60,7 @@ Few things of importants:
 
  5. The variables for the **SALT, aka Fertilizer**, is set, and you do not need to change them, unless you have very special soil conditions.1
 
- 6. Now you give the module a plant name. Check the variable update_plant_name, if set to true, the plant name is stored on the module, after that you set the update_plant_name to false. If you want to use the module on another plant, you just repeat the step "true/false".
+ 6. Now you give the module a plant name. Check the variable **update_plant_name**, if set to **true**, the plant name is stored on the module, after that is done, you set the **update_plant_name** to **false**. If you want to use the module on another plant, you just repeat the step "**true/false**".
 
  7. Now you have to define your SSID's, you can have as many as you like, I have at the moment 4, probably going to 5 soon. You update the variable **ssidArr** with your access points, each separated by a comma. The variable **ssidArrNo** must be filled with the number of SSID's given.
 
@@ -74,15 +76,25 @@ Few things of importants:
 
      Upload your sketch to the module, and
 
-     ​																															**YOU ARE DONE with first part**
+     ​																									**YOU ARE DONE with first part**
 
      
 
 ## The Python Part - The Autodiscover - MAGIC
 
-In home-assistant/custom_components, you place the Python file, and create folder sensors, where you place the sensors.yaml file.
+The downloaded folder **Autodiscovery**, you copy to Home Assistant config folder (where you have your configuration.yaml). 
 
-The sensors.yaml file will containe the identified modules, with their MAC_ID, and on next line the Plant name you have given to the module.
+**
+
+The Python script in the Autodiscovery folder named: 
+
+### 																		**TTGO-T-HIGrow-aut.py**
+
+is unfortunately not an integrated part in Home-Assistant. There is a reason for this. Home-Assistant does not accept the Import command in scripts. As I am using functions which do not exists in Home-Assistant as services, I need to import, and thus, the program has to run outside Home-Assistant.
+
+I therefore run this program in Windows 10, and I do it in the Eric API for Python. The good thing is that you only need to run this program, when you add new modules. When it has run, it have made the mqtt messages from the TTGO-T-HIGrow module, able to be Autodiscovered by Home-Assistant MQTT Autodiscover function.
+
+You can always reinstall the module in Home Assistant, by deleting it in Integrations MQTT, and delete the mac_id and name in the sensors.yaml file, run the Python program again, and voila, the sensors are back in Home Assistant MQTT.
 
 The sensors.yaml (in my case) look like this:
 
@@ -105,21 +117,11 @@ mac_id: fcf5c40cf614
 name: Begonie_3_winter
 ```
 
-**NEVER remove the four first info lines, as it will make the Autodiscover mailfuction.**
-
-The Python script named: 
-
-### 																		**TTGO-T-HIGrow-aut.py**
-
-is unfortunately not an integrated part in Home-Assistant. There is (in my case) a reason for this. Home-Assistant does not accept the Import command in scripts. As I am using functions which do not exists in Home-Assistant as services, I need to import, and thus, the program has to run outside Home-Assistant.
-
-I therefore run this program in Windows 10, and I do it in the Eric API for Python. The good thing is that you only need to run this program, when you add new modules. When it has run, it have made the module able to be Autodiscovered by Home-Assistant MQTT Autodiscover function.
-
-You can always reinstall the module in Home Assistant, by deleting it in Integrations MQTT, and delete the mac_id and name in the sensors.yaml file, run the Python program, and voila, the sensors are back in Home Assistant MQTT.
+**NEVER remove the four first info lines, as it will make the Autodiscover mailfuction.
 
 ## [Battery StateCard](https://github.com/maxwroc/battery-state-card)
 
-In release 3.0.4 I have made changes, so that the aboce Battery State Card, which is part of the HACS custom cards, can be utilized.
+From release 3.0.4 I have made changes, so that the aboce Battery State Card, which is part of the HACS custom cards, can be utilized.
 
 As I have many TTGO-T-HIGROW modules, it is most confortable to have all these modules battery states in one card on the Home Assistant.
 
@@ -181,6 +183,10 @@ See instructions under **Prerequisites**
 3.0.4 Adapting to HACS frontend card: Battery State Card
 
 3.0.5 The plant name, is now added to the modules SPIFFS file system, so that it part of the constant data of the module.
+
+3.0.6 Corrected DST, so it now works, both for shift to winter time, and shift to summer time.
+
+4.0.0 Same as 3.0.6, but the software has changed from Arduino EDI, to VSCode/PlatformIO
 
 
 ### Authors
