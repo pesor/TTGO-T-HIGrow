@@ -369,7 +369,7 @@ void connectToNetwork() {
   if (logging) {
     writeFile(SPIFFS, "/error.log", "Connecting to Network: \n");
   }
-  for (int i = 0; i <= ssidArrNo; i++) {
+  for (int i = 0; i < ssidArrNo; i++) {
     ssid = ssidArr[i].c_str();
     Serial.print("SSID name: ");
     Serial.print(ssidArr[i]);
