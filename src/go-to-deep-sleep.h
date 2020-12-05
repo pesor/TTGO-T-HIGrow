@@ -14,6 +14,10 @@ void goToDeepSleep()
   // Configure the timer to wake us up!
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
 
+  // Testpurposes
+  //esp_sleep_enable_timer_wakeup(10 * uS_TO_S_FACTOR);
+
+
   // Go to sleep! Zzzz
   esp_deep_sleep_start();
 }

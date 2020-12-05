@@ -31,7 +31,8 @@
 //           rel = "3.0.6"; // DST calculation was way wrong, corrected now.
 //           rel = "4.0.0"; // Changed from Arduino EDI to VS Code - PlatformIO
 //           rel = "4.0.1"; // Error correction in connect network
-const String rel = "4.0.2"; // Organising subroutines, and functional code snippets.
+//           rel = "4.0.2"; // Organising subroutines, and functional code snippets.
+const String rel = "4.0.3"; // Adding battery charged date, and days since last charge
 
 // mqtt constants
 WiFiClient wifiClient;
@@ -40,10 +41,12 @@ PubSubClient mqttClient(wifiClient);
 // Reboot counters
 RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR int sleep5no = 0;
-
+RTC_DATA_ATTR String battchargeDate = "";
+RTC_DATA_ATTR int battchargeDateCnt = 0;
 
 //json construct setup
-struct Config {
+struct Config
+{
   String date;
   String time;
   int bootno;
@@ -56,6 +59,8 @@ struct Config {
   String saltadvice;
   float bat;
   String batcharge;
+  String batchargeDate;
+  int batchargeDateCnt;
   float batvolt;
   float batvoltage;
   String rel;
@@ -64,15 +69,15 @@ Config config;
 
 const int led = 13;
 
-#define I2C_SDA             25
-#define I2C_SCL             26
-#define DHT_PIN             16
-#define BAT_ADC             33
-#define SALT_PIN            34
-#define SOIL_PIN            32
-#define BOOT_PIN            0
-#define POWER_CTRL          4
-#define USER_BUTTON         35
+#define I2C_SDA 25
+#define I2C_SCL 26
+#define DHT_PIN 16
+#define BAT_ADC 33
+#define SALT_PIN 34
+#define SOIL_PIN 32
+#define BOOT_PIN 0
+#define POWER_CTRL 4
+#define USER_BUTTON 35
 
 BH1750 lightMeter(0x23); //0x23
 Adafruit_BME280 bmp;     //0x77 Adafruit_BME280 is technically not used, but if removed the BH1750 will not work - Any suggestions why, would be appriciated.
@@ -95,17 +100,19 @@ bool bme_found = false;
 #include <save-configuration.h>
 #include <connect-to-network.h>
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   Serial.println("Void Setup");
 
-  #include <module-parameter-management.h>
+#include <module-parameter-management.h>
 
   // Start WiFi and update time
   connectToNetwork();
   Serial.println(" ");
   Serial.println("Connected to network");
-  if (logging) {
+  if (logging)
+  {
     writeFile(SPIFFS, "/error.log", "Connected to network \n");
   }
 
@@ -114,13 +121,23 @@ void setup() {
   //  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   //  timeClient.setTimeOffset(7200);
 
+  timeClient.setTimeOffset(gmtOffset_sec);
+  while (!timeClient.update())
+  {
+    timeClient.forceUpdate();
+  }
+
+#include <time-management.h>
+
   Wire.begin(I2C_SDA, I2C_SCL);
-  if (logging) {
+  if (logging)
+  {
     writeFile(SPIFFS, "/error.log", "Wire Begin OK! \n");
   }
 
   dht.begin();
-  if (logging) {
+  if (logging)
+  {
     writeFile(SPIFFS, "/error.log", "DHT12 Begin OK! \n");
   }
 
@@ -129,16 +146,22 @@ void setup() {
   digitalWrite(POWER_CTRL, 1);
   delay(1000);
 
-  if (!bmp.begin()) {
+  if (!bmp.begin())
+  {
     Serial.println(F("This check must be done, otherwise the BH1750 does not initiate!!!!?????"));
     bme_found = false;
-  } else {
+  }
+  else
+  {
     bme_found = true;
   }
 
-  if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE)) {
+  if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
+  {
     Serial.println(F("BH1750 Advanced begin"));
-  } else {
+  }
+  else
+  {
     Serial.println(F("Error initialising BH1750"));
   }
 
@@ -156,36 +179,46 @@ void setup() {
   uint32_t salt = readSalt();
   config.salt = salt;
   String advice;
-  if (salt < 201) {
+  if (salt < 201)
+  {
     advice = "needed";
   }
-  else if (salt < 251) {
+  else if (salt < 251)
+  {
     advice = "low";
   }
-  else if (salt < 351) {
+  else if (salt < 351)
+  {
     advice = "optimal";
   }
-  else if (salt > 350) {
+  else if (salt > 350)
+  {
     advice = "too high";
   }
-  Serial.println (advice);
+  Serial.println(advice);
   config.saltadvice = advice;
-
-
 
   float bat = readBattery();
   config.bat = bat;
   config.batcharge = "";
-  if (bat > 130) {
+  if (bat > 130)
+  {
     config.batcharge = "charging";
+    battchargeDate = config.date;
+    battchargeDateCnt = 0;
   }
+  config.batchargeDate = battchargeDate;
+  if (battchargeDate != config.date) {
+    battchargeDateCnt += 1;
+  }
+  config.batchargeDateCnt = battchargeDateCnt;
 
-  if (bat > 100) {
+  if (bat > 100)
+  {
     config.bat = 100;
   }
-  
-  config.bootno = bootCount;
 
+  config.bootno = bootCount;
 
   luxRead = lightMeter.readLightLevel();
   Serial.print("lux ");
@@ -193,16 +226,10 @@ void setup() {
   config.lux = luxRead;
   config.rel = rel;
 
-  timeClient.setTimeOffset(gmtOffset_sec);
-  while (!timeClient.update()) {
-    timeClient.forceUpdate();
-  }
-
-  #include <time-management.h>
-
   // Create JSON file
   Serial.println(F("Creating JSON document..."));
-  if (logging) {
+  if (logging)
+  {
     writeFile(SPIFFS, "/error.log", "Creating JSON document...! \n");
   }
   saveConfiguration(config);
@@ -217,5 +244,6 @@ void setup() {
   goToDeepSleep();
 }
 
-void loop() {
+void loop()
+{
 }
