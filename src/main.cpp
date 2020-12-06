@@ -32,7 +32,8 @@
 //           rel = "4.0.0"; // Changed from Arduino EDI to VS Code - PlatformIO
 //           rel = "4.0.1"; // Error correction in connect network
 //           rel = "4.0.2"; // Organising subroutines, and functional code snippets.
-const String rel = "4.0.3"; // Adding battery charged date, and days since last charge
+//           rel = "4.0.3"; // Adding battery charged date, and days since last charge
+const String rel = "4.0.4"; // Adding battery charged date, and days since last charge, added to SPIFFS so that data do not dissapear at reboot.
 
 // mqtt constants
 WiFiClient wifiClient;
@@ -206,12 +207,27 @@ void setup()
     config.batcharge = "charging";
     battchargeDate = config.date;
     battchargeDateCnt = 0;
+    // Save the data
+    SPIFFS.remove("/batinfo.conf");
+    String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt);
+    const char* batinfo_write = batinfo.c_str();
+    writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
   }
   config.batchargeDate = battchargeDate;
   if (battchargeDate != config.date) {
     battchargeDateCnt += 1;
+    // Save the data
+    SPIFFS.remove("/batinfo.conf");
+    String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt);
+    const char* batinfo_write = batinfo.c_str();
+    writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
   }
   config.batchargeDateCnt = battchargeDateCnt;
+
+
+// >>>>>>>>>>>>>>>>>>> Husk at læse data
+
+
 
   if (bat > 100)
   {
