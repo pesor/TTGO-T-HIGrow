@@ -32,8 +32,8 @@
 //           rel = "4.0.1"; // Error correction in connect network
 //           rel = "4.0.2"; // Organising subroutines, and functional code snippets.
 //           rel = "4.0.3"; // Adding battery charged date, and days since last charge
-const String rel = "4.0.4"; // Adding battery charged date, and days since last charge, added to SPIFFS so that data do not dissapear at reboot.
-
+//           rel = "4.0.4"; // Adding battery charged date, and days since last charge, added to SPIFFS so that data do not dissapear at reboot.
+const String rel = "4.0.5"; // Merged change from @reenari, and corrected counter days since last change
 // mqtt constants
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -138,14 +138,17 @@ void setup()
   delay(1000);
 
   bool wireOk = Wire.begin(I2C_SDA, I2C_SCL); // wire can not be initialized at beginng, the bus is busy
-  if(wireOk) {
-      Serial.println(F("Wire ok"));
-      if (logging)
-      {
-          writeFile(SPIFFS, "/error.log", "Wire Begin OK! \n");
-      }
-  } else {
-      Serial.println(F("Wire NOK"));
+  if (wireOk)
+  {
+    Serial.println(F("Wire ok"));
+    if (logging)
+    {
+      writeFile(SPIFFS, "/error.log", "Wire Begin OK! \n");
+    }
+  }
+  else
+  {
+    Serial.println(F("Wire NOK"));
   }
 
    if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
@@ -205,20 +208,19 @@ void setup()
     writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
   }
   config.batchargeDate = battchargeDate;
-  if (battchargeDate != config.date) {
-    battchargeDateCnt += 1;
-    // Save the data
-    SPIFFS.remove("/batinfo.conf");
-    String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt);
-    const char* batinfo_write = batinfo.c_str();
-    writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
+  if (battchargeDate != config.date)
+  {
+    if (thisHour == 12 && thisMinute == 0)
+    {
+      battchargeDateCnt += 1;
+      // Save the data
+      SPIFFS.remove("/batinfo.conf");
+      String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt);
+      const char *batinfo_write = batinfo.c_str();
+      writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
+    }
   }
   config.batchargeDateCnt = battchargeDateCnt;
-
-
-// >>>>>>>>>>>>>>>>>>> Husk at læse data
-
-
 
   if (bat > 100)
   {
