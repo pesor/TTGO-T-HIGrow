@@ -43,6 +43,7 @@ RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR int sleep5no = 0;
 RTC_DATA_ATTR String battchargeDate = "";
 RTC_DATA_ATTR int battchargeDateCnt = 0;
+RTC_DATA_ATTR String battchargeDateCntLast = "";
 
 //json construct setup
 struct Config
@@ -203,19 +204,19 @@ void setup()
     battchargeDateCnt = 0;
     // Save the data
     SPIFFS.remove("/batinfo.conf");
-    String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt);
+    String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt) + ":" + String(battchargeDateCntLast);
     const char* batinfo_write = batinfo.c_str();
     writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
   }
   config.batchargeDate = battchargeDate;
   if (battchargeDate != config.date)
   {
-    if (thisHour == 12 && thisMinute == 0)
+    if (config.date != battchargeDateCntLast)
     {
       battchargeDateCnt += 1;
       // Save the data
       SPIFFS.remove("/batinfo.conf");
-      String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt);
+      String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt) + ":" + String(battchargeDateCntLast);
       const char *batinfo_write = batinfo.c_str();
       writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
     }
