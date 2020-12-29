@@ -219,6 +219,7 @@ void setup()
       String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt) + ":" + String(battchargeDateCntLast);
       const char *batinfo_write = batinfo.c_str();
       writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
+      battchargeDateCntLast = config.date;
     }
   }
   config.batchargeDateCnt = battchargeDateCnt;
