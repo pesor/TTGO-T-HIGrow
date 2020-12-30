@@ -83,8 +83,13 @@ Serial.println("Here comes the calibration info:");
 Serial.println(readString);
 String xval = getValue(readString, ':', 0);
 String yval = getValue(readString, ':', 1);
+String zval = getValue(readString, ':', 2);
 
 battchargeDate = xval;
 battchargeDateCnt = yval.toInt();
+battchargeDateCntLast = zval;
+
+Serial.print("last cnt date ");
+Serial.println(battchargeDateCntLast);
 
 readString = "";

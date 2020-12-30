@@ -29,7 +29,7 @@ int fertil_high = 351;
 
 // Give the sensor a plant name, change to true, upload sketch and then revert to false
 const bool update_plant_name = false;
-String plant_name = "My_Test";
+String plant_name = "Padron_1";
 
 
 // define your SSID's, and remember to fill out variable ssidArrNo with the number of your SSID's

@@ -33,7 +33,9 @@
 //           rel = "4.0.2"; // Organising subroutines, and functional code snippets.
 //           rel = "4.0.3"; // Adding battery charged date, and days since last charge
 //           rel = "4.0.4"; // Adding battery charged date, and days since last charge, added to SPIFFS so that data do not dissapear at reboot.
-const String rel = "4.0.5"; // Merged change from @reenari, and corrected counter days since last change
+//           rel = "4.0.5"; // Merged change from @reenari, and corrected counter days since last change
+const String rel = "4.0.6"; // Corrected counter days !!! AGAIN !!!
+
 // mqtt constants
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -201,6 +203,7 @@ void setup()
   {
     config.batcharge = "charging";
     battchargeDate = config.date;
+    battchargeDateCntLast = config.date;
     battchargeDateCnt = 0;
     // Save the data
     SPIFFS.remove("/batinfo.conf");
