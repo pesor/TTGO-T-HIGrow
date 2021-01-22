@@ -159,7 +159,9 @@ def send_discovery_topics(msg):
         entity_payload['dev'] = device_payload
         sensor_type = ("sensor")
         entity_topic = f"{'homeassistant'}/{sensor_type}/{'Tgrow_HIGrow_'}{d['plant']['Tgrow_HIGrow']}/{entity}/config"
-    
+ 
+        print(json.dumps(entity_payload))
+ 
         client.publish(
             entity_topic,
             payload=json.dumps(entity_payload),

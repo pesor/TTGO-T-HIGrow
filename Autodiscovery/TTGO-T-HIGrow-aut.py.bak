@@ -129,6 +129,16 @@ def send_discovery_topics(msg):
             'unit_of_meas': "", 
             'icon':'mdi:battery'
         }, 
+        'batchargeDate': {
+            'name': f"{d['plant']['sensorname']} batchargeDate", 
+            'unit_of_meas': "", 
+            'icon':'mdi:battery'
+        }, 
+        'batchargeDateCnt': {
+            'name': f"{d['plant']['sensorname']} batchargeDateCnt",
+            'unit_of_meas': "", 
+            'icon':'mdi:battery'
+        }, 
         'wifissid': {
             'name': f"{d['plant']['sensorname']} WIFI",
             'unit_of_meas': "", 
