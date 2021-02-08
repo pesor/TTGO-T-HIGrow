@@ -34,7 +34,8 @@
 //           rel = "4.0.3"; // Adding battery charged date, and days since last charge
 //           rel = "4.0.4"; // Adding battery charged date, and days since last charge, added to SPIFFS so that data do not dissapear at reboot.
 //           rel = "4.0.5"; // Merged change from @reenari, and corrected counter days since last change
-const String rel = "4.0.6"; // Corrected counter days !!! AGAIN !!!
+//           rel = "4.0.6"; // Corrected counter days !!! AGAIN !!!
+const String rel = "4.0.7"; // The plant name is now used as hostname, so it is more visible in your router
 
 // mqtt constants
 WiFiClient wifiClient;
