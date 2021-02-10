@@ -13,6 +13,9 @@ String readString; // do not change this variable
 #define DHT_TYPE DHT12
 //#define DHT_TYPE DHT22
 
+// Select if 18B20 soil temp sensor available, if available -->> set to true
+const bool USE_18B20_TEMP_SENSOR = false;
+
 // It is a really good thing to calibrate each unit for soil, first note the number when unit is on the table, the soil number is for zero humidity. Then place the unit up to the electronics into a glass of water, the number now is the 100% humidity.
 // By doing this you will get the same readout for each unit. Replace the value below for the dry condition, and the 100% humid condition, and you are done.
 

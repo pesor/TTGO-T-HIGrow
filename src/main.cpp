@@ -14,6 +14,8 @@
 #include <esp_wifi.h>
 #include <esp_bt.h>
 #include "user-variables.h"
+#include <18B20_class.h>
+
 
 // Logfile on SPIFFS
 #include "SPIFFS.h"
@@ -35,7 +37,8 @@
 //           rel = "4.0.4"; // Adding battery charged date, and days since last charge, added to SPIFFS so that data do not dissapear at reboot.
 //           rel = "4.0.5"; // Merged change from @reenari, and corrected counter days since last change
 //           rel = "4.0.6"; // Corrected counter days !!! AGAIN !!!
-const String rel = "4.0.7"; // The plant name is now used as hostname, so it is more visible in your router
+//           rel = "4.0.7"; // The plant name is now used as hostname, so it is more visible in your router
+const String rel = "4.1.0"; // Possibility to add the external 18B20 temperature sensor
 
 // mqtt constants
 WiFiClient wifiClient;
@@ -59,6 +62,7 @@ struct Config
   float temp;
   float humid;
   float soil;
+  float soilTemp;
   float salt;
   String saltadvice;
   float bat;
@@ -82,10 +86,12 @@ const int led = 13;
 #define BOOT_PIN 0
 #define POWER_CTRL 4
 #define USER_BUTTON 35
+#define DS18B20_PIN 21
 
 BH1750 lightMeter(0x23); //0x23
 
 DHT dht(DHT_PIN, DHT_TYPE);
+DS18B20 temp18B20(DS18B20_PIN);
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
@@ -100,6 +106,7 @@ String timeStamp1;
 #include <read-sensors.h>
 #include <save-configuration.h>
 #include <connect-to-network.h>
+#include <read-batt-info.h>
 
 void setup()
 {
@@ -155,7 +162,7 @@ void setup()
     Serial.println(F("Wire NOK"));
   }
 
-   if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
+  if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
   {
     Serial.println(F("BH1750 Advanced begin"));
   }
@@ -175,6 +182,9 @@ void setup()
   config.humid = h12;
   uint16_t soil = readSoil();
   config.soil = soil;
+  float soilTemp = readSoilTemp();
+  config.soilTemp = soilTemp;
+
   uint32_t salt = readSalt();
   config.salt = salt;
   String advice;
@@ -209,7 +219,7 @@ void setup()
     // Save the data
     SPIFFS.remove("/batinfo.conf");
     String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt) + ":" + String(battchargeDateCntLast);
-    const char* batinfo_write = batinfo.c_str();
+    const char *batinfo_write = batinfo.c_str();
     writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
   }
   config.batchargeDate = battchargeDate;
@@ -224,6 +234,16 @@ void setup()
       const char *batinfo_write = batinfo.c_str();
       writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
       battchargeDateCntLast = config.date;
+      if (logging)
+      {
+        String logInfo = "config date: " + String(config.date) + " cnt date " + String(battchargeDateCntLast) + " \n";
+        const char *logInfo_write = logInfo.c_str();
+        writeFile(SPIFFS, "/error.log", logInfo_write);
+      }
+      Serial.print("config date ");
+      Serial.println(config.date);
+      Serial.print("cnt date ");
+      Serial.println(battchargeDateCntLast);
     }
   }
   config.batchargeDateCnt = battchargeDateCnt;

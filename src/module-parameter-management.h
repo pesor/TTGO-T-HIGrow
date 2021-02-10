@@ -24,8 +24,9 @@ if (readLogfile)
 {
   // Now we start reading the files..
   readFile(SPIFFS, "/error.log");
-  Serial.println("Here comes the logging info:");
+  Serial.println("Here STARTS the logging info:");
   Serial.println(readString);
+  Serial.println("Here ENDS the logging info:");
 }
 
 if (deleteLogfile)
@@ -77,19 +78,4 @@ if (logging)
   writeFile(SPIFFS, "/error.log", "Before Start WIFI \n");
 }
 
-// Read battery charging info
-readFile(SPIFFS, "/batinfo.conf");
-Serial.println("Here comes the calibration info:");
-Serial.println(readString);
-String xval = getValue(readString, ':', 0);
-String yval = getValue(readString, ':', 1);
-String zval = getValue(readString, ':', 2);
-
-battchargeDate = xval;
-battchargeDateCnt = yval.toInt();
-battchargeDateCntLast = zval;
-
-Serial.print("last cnt date ");
-Serial.println(battchargeDateCntLast);
-
-readString = "";
+read_batt_info();

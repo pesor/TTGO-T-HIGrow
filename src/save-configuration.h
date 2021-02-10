@@ -40,6 +40,7 @@ void saveConfiguration(const Config & config) {
   plant["temp"] = config.temp;
   plant["humid"] = config.humid;
   plant["soil"] = config.soil;
+  plant["soilTemp"] = config.soilTemp;
   plant["salt"] = config.salt;
   plant["saltadvice"] = config.saltadvice;
   plant["bat"] = config.bat;

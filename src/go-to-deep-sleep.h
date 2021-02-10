@@ -4,7 +4,7 @@ void goToDeepSleep()
   Serial.print(TIME_TO_SLEEP);
   Serial.println(" seconds");
   if (logging) {
-    writeFile(SPIFFS, "/error.log", "Going to sleep for 3600 seconds \n");
+    writeFile(SPIFFS, "/error.log", "Going to sleep for 10800 seconds \n");
   }
 
   WiFi.disconnect(true);
@@ -17,6 +17,10 @@ void goToDeepSleep()
   // Testpurposes
   //esp_sleep_enable_timer_wakeup(10 * uS_TO_S_FACTOR);
 
+  if (logging)
+  {
+    writeFile(SPIFFS, "/error.log", "Going to deep sleep \n \n \n");
+  }
 
   // Go to sleep! Zzzz
   esp_deep_sleep_start();
