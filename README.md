@@ -8,4 +8,4 @@
 
 ### Getting started
 
-Go to the [WIKI](https://www.youtube.com/channel/UCuqokNoK8ZFNQdXxvlE129g) of this Repo, there you will find a comprehensive toturial to help you implement this card.
+Go to the [WIKI](https://github.com/pesor/TTGO-T-HIGrow/wiki) of this Repo, there you will find a comprehensive toturial to help you implement this card.
