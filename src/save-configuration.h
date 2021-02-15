@@ -49,6 +49,7 @@ void saveConfiguration(const Config & config) {
   plant["batchargeDateCnt"] = config.batchargeDateCnt;
   plant["battvolt"] = config.batvolt;
   plant["battvoltage"] = config.batvoltage;
+  plant["pressure"] = config.pressure;
   plant["wifissid"] = WiFi.SSID();
   plant["rel"] = config.rel;
 

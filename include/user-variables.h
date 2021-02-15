@@ -13,6 +13,9 @@ String readString; // do not change this variable
 #define DHT_TYPE DHT12
 //#define DHT_TYPE DHT22
 
+// Set to true if you have a DHT sensor on the board, and false if not
+bool dht_found = false;
+
 // Select if 18B20 soil temp sensor available, if available -->> set to true
 const bool USE_18B20_TEMP_SENSOR = false;
 

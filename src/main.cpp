@@ -15,7 +15,7 @@
 #include <esp_bt.h>
 #include "user-variables.h"
 #include <18B20_class.h>
-
+#include <Adafruit_BME280.h>
 
 // Logfile on SPIFFS
 #include "SPIFFS.h"
@@ -38,7 +38,8 @@
 //           rel = "4.0.5"; // Merged change from @reenari, and corrected counter days since last change
 //           rel = "4.0.6"; // Corrected counter days !!! AGAIN !!!
 //           rel = "4.0.7"; // The plant name is now used as hostname, so it is more visible in your router
-const String rel = "4.1.0"; // Possibility to add the external 18B20 temperature sensor
+//           rel = "4.1.0"; // Possibility to add the external 18B20 temperature sensor
+const String rel = "4.2.0"; // BME280 sensor implemented
 
 // mqtt constants
 WiFiClient wifiClient;
@@ -50,6 +51,9 @@ RTC_DATA_ATTR int sleep5no = 0;
 RTC_DATA_ATTR String battchargeDate = "";
 RTC_DATA_ATTR int battchargeDateCnt = 0;
 RTC_DATA_ATTR String battchargeDateCntLast = "";
+
+//Sensor bools
+bool bme_found = false;
 
 //json construct setup
 struct Config
@@ -71,6 +75,7 @@ struct Config
   int batchargeDateCnt;
   float batvolt;
   float batvoltage;
+  float pressure;
   String rel;
 };
 Config config;
@@ -89,6 +94,7 @@ const int led = 13;
 #define DS18B20_PIN 21
 
 BH1750 lightMeter(0x23); //0x23
+Adafruit_BME280 bmp;     //0x77
 
 DHT dht(DHT_PIN, DHT_TYPE);
 DS18B20 temp18B20(DS18B20_PIN);
@@ -137,10 +143,13 @@ void setup()
 
 #include <time-management.h>
 
-  dht.begin();
-  if (logging)
+  if (dht_found)
   {
-    writeFile(SPIFFS, "/error.log", "DHT12 Begin OK! \n");
+    dht.begin();
+  }
+  else
+  {
+    Serial.println(F("Could not find a valid DHT sensor, check if there is one present on board!"));
   }
 
   //! Sensor power control pin , use deteced must set high
@@ -162,6 +171,16 @@ void setup()
     Serial.println(F("Wire NOK"));
   }
 
+  if (!bmp.begin())
+  {
+    Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
+    bme_found = false;
+  }
+  else
+  {
+    bme_found = true;
+  }
+
   if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
   {
     Serial.println(F("BH1750 Advanced begin"));
@@ -175,11 +194,28 @@ void setup()
   Serial.print("lux ");
   Serial.println(luxRead);
   delay(2000);
-  float t12 = dht.readTemperature(); // Read temperature as Fahrenheit then dht.readTemperature(true)
-  config.temp = t12;
-  delay(2000);
-  float h12 = dht.readHumidity();
-  config.humid = h12;
+
+  if (dht_found)
+  {
+    float t12 = dht.readTemperature(); // Read temperature as Fahrenheit then dht.readTemperature(true)
+    config.temp = t12;
+    delay(2000);
+    float h12 = dht.readHumidity();
+    config.humid = h12;
+  }
+
+  if (bme_found)
+  {
+    float bme_temp = bmp.readTemperature();
+    config.temp = bme_temp;
+
+    float bme_humid = bmp.readHumidity();
+    config.humid = bme_humid;
+
+    float bme_pressure = (bmp.readPressure() / 100.0F);
+    config.pressure = bme_pressure;
+  }
+
   uint16_t soil = readSoil();
   config.soil = soil;
   float soilTemp = readSoilTemp();
