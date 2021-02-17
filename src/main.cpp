@@ -39,7 +39,8 @@
 //           rel = "4.0.6"; // Corrected counter days !!! AGAIN !!!
 //           rel = "4.0.7"; // The plant name is now used as hostname, so it is more visible in your router
 //           rel = "4.1.0"; // Possibility to add the external 18B20 temperature sensor
-const String rel = "4.2.0"; // BME280 sensor implemented
+//           rel = "4.2.0"; // BME280 sensor implemented
+const String rel = "4.2.1"; // BME280 sensor library included in the lib file
 
 // mqtt constants
 WiFiClient wifiClient;
