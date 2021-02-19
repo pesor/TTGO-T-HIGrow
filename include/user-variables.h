@@ -37,6 +37,8 @@ int fertil_high = 351;
 const bool update_plant_name = false;
 String plant_name = "Padron_1";
 
+//If using the Greenhouse automatic watering repo, then assign a waterValveNo to the plant. 
+int plantValveNo = 1;
 
 // define your SSID's, and remember to fill out variable ssidArrNo with the number of your SSID's
 String ssidArr[] = {"Enterprise-pro", "Enterprise_EXT", "Enterprise_EXTN", "Enterprise" };

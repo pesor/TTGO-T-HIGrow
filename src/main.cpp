@@ -40,7 +40,7 @@
 //           rel = "4.0.7"; // The plant name is now used as hostname, so it is more visible in your router
 //           rel = "4.1.0"; // Possibility to add the external 18B20 temperature sensor
 //           rel = "4.2.0"; // BME280 sensor implemented
-const String rel = "4.2.1"; // BME280 sensor library included in the lib file
+const String rel = "4.2.1"; // For the Greenhouse auto watering, the plantValveNo have been introduced. (Greenhouse auto watering is in development)
 
 // mqtt constants
 WiFiClient wifiClient;

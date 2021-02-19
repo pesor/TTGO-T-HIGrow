@@ -50,6 +50,7 @@ void saveConfiguration(const Config & config) {
   plant["battvolt"] = config.batvolt;
   plant["battvoltage"] = config.batvoltage;
   plant["pressure"] = config.pressure;
+  plant["plantValveNo"] = plantValveNo;
   plant["wifissid"] = WiFi.SSID();
   plant["rel"] = config.rel;
 

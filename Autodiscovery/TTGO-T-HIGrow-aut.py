@@ -1,5 +1,5 @@
 '''
-TTGO-HIGrow to MQTT Gateway, release 3.0.1
+TTGO-HIGrow to MQTT Gateway, release 3.1.0
 '''
 import json
 import yaml
@@ -148,6 +148,15 @@ def send_discovery_topics(msg):
             'name': f"{d['plant']['sensorname']} WIFI",
             'unit_of_meas': "", 
             'icon':'mdi:wifi'
+        }, 
+        'pressure': {
+            'name': f"{d['plant']['sensorname']} Pressure",
+            'unit_of_meas': "Hpa", 
+            'icon':'mdi:gauge'
+        }, 
+        'plantValveNo': {
+            'name': f"{d['plant']['sensorname']} plantValveNo",
+            'unit_of_meas': "", 
         }, 
         'rel': {
             'name': f"{d['plant']['sensorname']} Release",
