@@ -1,5 +1,5 @@
 '''
-TTGO-HIGrow to MQTT Gateway, release 3.1.0
+TTGO-HIGrow to MQTT Gateway, release 4.3.1
 '''
 import json
 import yaml
@@ -137,12 +137,12 @@ def send_discovery_topics(msg):
         'batchargeDate': {
             'name': f"{d['plant']['sensorname']} batchargeDate", 
             'unit_of_meas': "", 
-            'icon':'mdi:battery'
+            'icon':'mdi:calendar'
         }, 
-        'batchargeDateCnt': {
-            'name': f"{d['plant']['sensorname']} batchargeDateCnt",
-            'unit_of_meas': "", 
-            'icon':'mdi:battery'
+        'daysOnBattery': {
+            'name': f"{d['plant']['sensorname']} daysOnBattery", 
+            'unit_of_meas': "days", 
+            'icon':'mdi:calendar'
         }, 
         'wifissid': {
             'name': f"{d['plant']['sensorname']} WIFI",

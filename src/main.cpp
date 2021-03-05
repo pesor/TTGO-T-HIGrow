@@ -9,6 +9,8 @@
 #include <SPI.h>
 #include <PubSubClient.h>
 #include <ESP.h>
+#include <time.h>
+#include <TimeLib.h>
 
 #include "driver/adc.h"
 #include <esp_wifi.h>
@@ -40,18 +42,24 @@
 //           rel = "4.0.7"; // The plant name is now used as hostname, so it is more visible in your router
 //           rel = "4.1.0"; // Possibility to add the external 18B20 temperature sensor
 //           rel = "4.2.0"; // BME280 sensor implemented
-const String rel = "4.2.2"; // For the Greenhouse auto watering, the plantValveNo have been introduced. (Greenhouse auto watering is in development)
+//           rel = "4.2.2"; // For the Greenhouse auto watering, the plantValveNo have been introduced. (Greenhouse auto watering is in development)
+//           rel = "4.2.3"; // Removed the battery day counter - for good, use BeardedTingers solution if you need it.
+const String rel = "4.3.1"; // Finally the days since last charging works correctly.
 
 // mqtt constants
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 
+// Date calculator
+unsigned long epochTime;
+String battChargeEpoc;
+unsigned long epochChargeTime;
+float battChargeDateDivider = 86400;
+float daysOnBattery;
+
 // Reboot counters
 RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR int sleep5no = 0;
-RTC_DATA_ATTR String battchargeDate = "";
-RTC_DATA_ATTR int battchargeDateCnt = 0;
-RTC_DATA_ATTR String battchargeDateCntLast = "";
 
 //Sensor bools
 bool bme_found = false;
@@ -73,7 +81,7 @@ struct Config
   float bat;
   String batcharge;
   String batchargeDate;
-  int batchargeDateCnt;
+  float daysOnBattery;
   float batvolt;
   float batvoltage;
   float pressure;
@@ -107,6 +115,7 @@ String dayStamp;
 String timeStamp1;
 
 // Start Subroutines
+
 #include <file-management.h>
 #include <go-to-deep-sleep.h>
 #include <get-string-value.h>
@@ -114,6 +123,7 @@ String timeStamp1;
 #include <save-configuration.h>
 #include <connect-to-network.h>
 #include <read-batt-info.h>
+#include <floatConv.h>
 
 void setup()
 {
@@ -143,7 +153,7 @@ void setup()
   }
 
 #include <time-management.h>
-
+  //#include <battChargeDays.h>
   if (dht_found)
   {
     dht.begin();
@@ -244,46 +254,40 @@ void setup()
   Serial.println(advice);
   config.saltadvice = advice;
 
+  // Battery status, and charging status and days.
   float bat = readBattery();
   config.bat = bat;
   config.batcharge = "";
+  Serial.println("Battery level");
+  Serial.println(bat);
   if (bat > 130)
   {
     config.batcharge = "charging";
-    battchargeDate = config.date;
-    battchargeDateCntLast = config.date;
-    battchargeDateCnt = 0;
-    // Save the data
     SPIFFS.remove("/batinfo.conf");
-    String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt) + ":" + String(battchargeDateCntLast);
-    const char *batinfo_write = batinfo.c_str();
+    epochChargeTime = timeClient.getEpochTime();
+    battChargeEpoc = String(epochChargeTime) + ":" + String(dayStamp);
+    const char *batinfo_write = battChargeEpoc.c_str();
     writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
+    Serial.println("dayStamp");
+    Serial.println(dayStamp);
+    config.batchargeDate = dayStamp;
   }
-  config.batchargeDate = battchargeDate;
-  if (battchargeDate != config.date)
-  {
-    if (config.date != battchargeDateCntLast)
-    {
-      battchargeDateCnt += 1;
-      // Save the data
-      SPIFFS.remove("/batinfo.conf");
-      String batinfo = String(battchargeDate) + ":" + String(battchargeDateCnt) + ":" + String(battchargeDateCntLast);
-      const char *batinfo_write = batinfo.c_str();
-      writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
-      battchargeDateCntLast = config.date;
-      if (logging)
-      {
-        String logInfo = "config date: " + String(config.date) + " cnt date " + String(battchargeDateCntLast) + " \n";
-        const char *logInfo_write = logInfo.c_str();
-        writeFile(SPIFFS, "/error.log", logInfo_write);
-      }
-      Serial.print("config date ");
-      Serial.println(config.date);
-      Serial.print("cnt date ");
-      Serial.println(battchargeDateCntLast);
-    }
-  }
-  config.batchargeDateCnt = battchargeDateCnt;
+
+  Serial.println("Charge Epoc");
+  Serial.println(battChargeEpoc);
+  unsigned long epochTime = timeClient.getEpochTime();
+  Serial.println("Test Epoc");
+  Serial.println(epochTime);
+  epochChargeTime = battChargeEpoc.toInt();
+  Serial.println("first calculation");
+  Serial.println(epochTime - epochChargeTime);
+  float epochTimeFl = float(epochTime);
+  float epochChargeTimeFl = float(epochChargeTime); 
+  
+
+  daysOnBattery = (epochTimeFl - epochChargeTimeFl) / battChargeDateDivider;
+  daysOnBattery = truncate(daysOnBattery, 1);
+  config.daysOnBattery = daysOnBattery;
 
   if (bat > 100)
   {

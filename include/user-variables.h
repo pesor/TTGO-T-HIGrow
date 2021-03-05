@@ -8,7 +8,7 @@ const bool  readLogfile = false;
 const bool  deleteLogfile = false;
 String readString; // do not change this variable
 
-// Select DHT type on the module - supported are DHT11, DHT12, DHT22
+// Select DHT type on the module - supported are DHT11, DHT12, DHT22 -- Even if you do not have one, you have to uncomment one, as compilation else will fail.
 //#define DHT_TYPE DHT11
 #define DHT_TYPE DHT12
 //#define DHT_TYPE DHT22
@@ -55,7 +55,7 @@ const long  gmtOffset_sec = 3600;
 const String device_name = "Tgrow_HIGrow"; // Can be changed, but not necessary, as it will give no added value.
 
 #define uS_TO_S_FACTOR 1000000ULL //Conversion factor for micro seconds to seconds
-#define TIME_TO_SLEEP  3600       //Time ESP32 will go to sleep (in seconds)
+#define TIME_TO_SLEEP  10800       //Time ESP32 will go to sleep (in seconds)
 
 const char broker[] = "192.168.1.64";
 int        port     = 1883;

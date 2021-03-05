@@ -11,9 +11,9 @@ uint32_t readSalt()
   for (int i = 0; i < samples; i++)
   {
     array[i] = analogRead(SALT_PIN);
-    //    Serial.print("Read salt pin : ");
+  //  Serial.print("Read salt pin : ");
 
-    //    Serial.println(array[i]);
+  //  Serial.println(array[i]);
     delay(2);
   }
   std::sort(array, array + samples);
@@ -40,18 +40,19 @@ uint16_t readSoil()
 float readSoilTemp()
 {
   float temp;
-// READ Soil Temperature
-if (USE_18B20_TEMP_SENSOR)
-{
-  //Single data stream upload
-  temp = temp18B20.temp();
-}
-else
-{
-  temp =0.00;
-}
+  // READ Soil Temperature
+  if (USE_18B20_TEMP_SENSOR)
+  {
+    //Single data stream upload
+    temp = temp18B20.temp();
+  }
+  else
+  {
+    temp = 0.00;
+  }
   return temp;
 }
+
 // READ Battery
 float readBattery()
 {

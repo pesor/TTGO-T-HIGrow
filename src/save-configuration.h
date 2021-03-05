@@ -24,7 +24,8 @@ void saveConfiguration(const Config & config) {
   const char* topic = topicStr.c_str();
   Serial.println(topic);
   Serial.println(ssid);
-  StaticJsonDocument<1024> doc;
+
+  StaticJsonDocument<1536> doc;
   // Set the values in the document
   // Device changes according to device placement
   JsonObject root = doc.to<JsonObject>();
@@ -46,7 +47,7 @@ void saveConfiguration(const Config & config) {
   plant["bat"] = config.bat;
   plant["batcharge"] = config.batcharge;
   plant["batchargeDate"] = config.batchargeDate;
-  plant["batchargeDateCnt"] = config.batchargeDateCnt;
+  plant["daysOnBattery"] = config.daysOnBattery;
   plant["battvolt"] = config.batvolt;
   plant["battvoltage"] = config.batvoltage;
   plant["pressure"] = config.pressure;
@@ -55,7 +56,7 @@ void saveConfiguration(const Config & config) {
   plant["rel"] = config.rel;
 
   // Send to mqtt
-  char buffer[1024];
+  char buffer[1536];
   serializeJson(doc, buffer);
 
 
