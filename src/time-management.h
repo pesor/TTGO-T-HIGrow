@@ -82,6 +82,8 @@
     String dateDay = dayStamp.substring(3, 5);
     dayStamp = dateDay + "-" + dateMonth;
     timeStamp1 = formattedDate.substring(splitT + 1, formattedDate.length() - 1);
+    config.time = timeStamp1.substring(0, 5);
+
   } else {
     Serial.println("IN VINTERTIME");
   }

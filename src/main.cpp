@@ -44,7 +44,8 @@
 //           rel = "4.2.0"; // BME280 sensor implemented
 //           rel = "4.2.2"; // For the Greenhouse auto watering, the plantValveNo have been introduced. (Greenhouse auto watering is in development)
 //           rel = "4.2.3"; // Removed the battery day counter - for good, use BeardedTingers solution if you need it.
-const String rel = "4.3.1"; // Finally the days since last charging works correctly.
+//           rel = "4.3.1"; // Finally the days since last charging works correctly.
+const String rel = "4.3.2"; // Corrected an error in DST.
 
 // mqtt constants
 WiFiClient wifiClient;
