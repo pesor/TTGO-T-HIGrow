@@ -96,7 +96,7 @@ def send_discovery_topics(msg):
         }, 
         'temp': {
             'name': f"{d['plant']['sensorname']} Temperature",
-            'unit_of_meas': "C", 
+            'unit_of_meas': "°C", 
             'icon':'mdi:thermometer'
         }, 
         'humid': {
@@ -111,7 +111,7 @@ def send_discovery_topics(msg):
         }, 
         'soilTemp': {
             'name': f"{d['plant']['sensorname']} SoilTemp",
-            'unit_of_meas': "C", 
+            'unit_of_meas': "°C", 
             'icon':'mdi:thermometer'
         },
         'salt': {
