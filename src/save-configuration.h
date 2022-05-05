@@ -74,7 +74,7 @@ void saveConfiguration(const Config & config) {
   }
 
   Serial.println(broker);
-  mqttClient.setServer(broker, 1883);
+  mqttClient.setServer(broker, port);
 
   if (!mqttClient.connect(broker, mqttuser, mqttpass)) {
     if (logging) {
