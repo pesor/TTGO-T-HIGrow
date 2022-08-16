@@ -4,7 +4,7 @@ void connectToNetwork()
   Serial.println(ssidArrNo);
   const char *Hostname = plant_name.c_str();
   WiFi.mode(WIFI_STA);
-  WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE); // call is only a workaround for bug in WiFi class
+  //WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE); // call is only a workaround for bug in WiFi class
   WiFi.setHostname(Hostname);
   Serial.println("");
   bool breakLoop = false;
