@@ -13,6 +13,7 @@ void goToDeepSleep()
 
   // Configure the timer to wake us up!
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  esp_sleep_enable_ext1_wakeup(GPIO_SEL_35, ESP_EXT1_WAKEUP_ALL_LOW);
 
   // Testpurposes
   //esp_sleep_enable_timer_wakeup(10 * uS_TO_S_FACTOR);
@@ -45,6 +46,7 @@ void goToDeepSleepFiveMinutes()
   // Configure the timer to wake us up!
   ++sleep5no;
   esp_sleep_enable_timer_wakeup(300 * uS_TO_S_FACTOR);
+  esp_sleep_enable_ext1_wakeup(GPIO_SEL_35, ESP_EXT1_WAKEUP_ALL_LOW);
 
   // Go to sleep! Zzzz
   esp_deep_sleep_start();

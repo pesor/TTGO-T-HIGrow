@@ -45,7 +45,7 @@
 //           rel = "4.2.2"; // For the Greenhouse auto watering, the plantValveNo have been introduced. (Greenhouse auto watering is in development)
 //           rel = "4.2.3"; // Removed the battery day counter - for good, use BeardedTingers solution if you need it.
 //           rel = "4.3.1"; // Finally the days since last charging works correctly.
-const String rel = "4.3.2"; // Corrected an error in DST.
+const String rel = "4.3.2mw"; // Corrected an error in DST.
 
 // mqtt constants
 WiFiClient wifiClient;
@@ -57,10 +57,14 @@ String battChargeEpoc;
 unsigned long epochChargeTime;
 float battChargeDateDivider = 86400;
 float daysOnBattery;
+unsigned long setupstart;
 
 // Reboot counters
 RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR int sleep5no = 0;
+
+// Voltage stabilization
+// RTC_DATA_ATTR float voltage_previous_read = 0;
 
 //Sensor bools
 bool bme_found = false;
@@ -84,6 +88,8 @@ struct Config
   String batchargeDate;
   float daysOnBattery;
   float batvolt;
+  float batvolt_read;
+  // float batvolt_prev;
   float batvoltage;
   float pressure;
   String rel;
@@ -126,12 +132,45 @@ String timeStamp1;
 #include <read-batt-info.h>
 #include <floatConv.h>
 
+// void listAllFiles(){
+ 
+//   File root = SPIFFS.open("/");
+ 
+//   File file = root.openNextFile();
+ 
+//   while(file){
+ 
+//       Serial.print("FILE: ");
+//       Serial.println(file.name());
+ 
+//       file = root.openNextFile();
+//   }
+ 
+// }
+
+
+
 void setup()
 {
+  setupstart = millis();//like 43
+  //! Sensor power control pin , use deteced must set high
+  pinMode(POWER_CTRL, OUTPUT);
+  digitalWrite(POWER_CTRL, 1);
+  delay(1000);
+
+  
+
   Serial.begin(115200);
   Serial.println("Void Setup");
 
+  uint16_t voltx = analogRead(BAT_ADC);//start of work no wifi fresh battery
+  Serial.print("VOLTXXXXXXXX :");
+  Serial.println(voltx);
+
+
 #include <module-parameter-management.h>
+
+
 
   // Start WiFi and update time
   connectToNetwork();
@@ -141,6 +180,8 @@ void setup()
   {
     writeFile(SPIFFS, "/error.log", "Connected to network \n");
   }
+
+
 
   Serial.println(WiFi.macAddress());
   Serial.println(WiFi.localIP());
@@ -163,11 +204,6 @@ void setup()
   {
     Serial.println(F("Could not find a valid DHT sensor, check if there is one present on board!"));
   }
-
-  //! Sensor power control pin , use deteced must set high
-  pinMode(POWER_CTRL, OUTPUT);
-  digitalWrite(POWER_CTRL, 1);
-  delay(1000);
 
   bool wireOk = Wire.begin(I2C_SDA, I2C_SCL); // wire can not be initialized at beginng, the bus is busy
   if (wireOk)
@@ -193,6 +229,9 @@ void setup()
     bme_found = true;
   }
 
+
+
+
   if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
   {
     Serial.println(F("BH1750 Advanced begin"));
@@ -203,7 +242,7 @@ void setup()
   }
 
   float luxRead = lightMeter.readLightLevel(); // 1st read seems to return 0 always
-  Serial.print("lux ");
+  Serial.print("lux first read is 0; ");
   Serial.println(luxRead);
   delay(2000);
 
@@ -252,16 +291,16 @@ void setup()
   {
     advice = "too high";
   }
-  Serial.println(advice);
+  //Serial.println(advice);
   config.saltadvice = advice;
 
   // Battery status, and charging status and days.
-  float bat = readBattery();
+  float bat = readBattery(voltx);
   config.bat = bat;
   config.batcharge = "";
-  Serial.println("Battery level");
+  Serial.print("Battery level: ");
   Serial.println(bat);
-  if (bat > 130)
+  if (bat > 110)
   {
     config.batcharge = "charging";
     SPIFFS.remove("/batinfo.conf");
@@ -269,18 +308,37 @@ void setup()
     battChargeEpoc = String(epochChargeTime) + ":" + String(dayStamp);
     const char *batinfo_write = battChargeEpoc.c_str();
     writeFile(SPIFFS, "/batinfo.conf", batinfo_write);
-    Serial.println("dayStamp");
+    Serial.print("charging dayStamp = ");
     Serial.println(dayStamp);
     config.batchargeDate = dayStamp;
   }
 
-  Serial.println("Charge Epoc");
+
+
+
+ 
+
+// Serial.println("\n\n----Listing files before format----");
+//   listAllFiles();
+ 
+//   bool formatted = SPIFFS.format();
+ 
+//   if(formatted){
+//     Serial.println("\n\nSuccess formatting");
+//   }else{
+//     Serial.println("\n\nError formatting");
+//   }
+ 
+//   Serial.println("\n\n----Listing files after format----");
+//   listAllFiles();
+
+  Serial.print("Charge Epoc (time) = ");
   Serial.println(battChargeEpoc);
   unsigned long epochTime = timeClient.getEpochTime();
-  Serial.println("Test Epoc");
+  Serial.print("Test Epoc = ");
   Serial.println(epochTime);
   epochChargeTime = battChargeEpoc.toInt();
-  Serial.println("first calculation");
+  Serial.print("first time calculation = ");
   Serial.println(epochTime - epochChargeTime);
   float epochTimeFl = float(epochTime);
   float epochChargeTimeFl = float(epochChargeTime); 
@@ -304,7 +362,7 @@ void setup()
   config.rel = rel;
 
   // Create JSON file
-  Serial.println(F("Creating JSON document..."));
+  // Serial.println(F("Creating JSON document..."));
   if (logging)
   {
     writeFile(SPIFFS, "/error.log", "Creating JSON document...! \n");
